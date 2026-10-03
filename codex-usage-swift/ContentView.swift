@@ -92,12 +92,6 @@ struct ContentView: View {
 
     private func bucketView(_ bucket: RateLimitBucket) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text(bucket.title).font(.headline)
-                Spacer()
-                Text("REMAINING").font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .tracking(1.5).foregroundStyle(.secondary)
-            }
             GlassEffectContainer(spacing: 20) {
                 HStack(alignment: .top, spacing: 18) {
                     if let primary = bucket.primary { UsageCard(window: primary, symbol: "bolt") }
@@ -107,16 +101,6 @@ struct ContentView: View {
                             .foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(32)
                     }
                 }
-            }
-            if let credits = bucket.credits {
-                HStack(spacing: 8) {
-                    Image(systemName: "circle.hexagongrid").foregroundStyle(mint)
-                    Text("Credits").foregroundStyle(.secondary)
-                    Spacer()
-                    Text(credits.unlimited == true ? "Unlimited" : credits.balance ?? (credits.hasCredits == false ? "None available" : "Available"))
-                        .monospacedDigit()
-                }
-                .font(.caption).padding(.horizontal, 4).padding(.top, 3)
             }
         }
     }

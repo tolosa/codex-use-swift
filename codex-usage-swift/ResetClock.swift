@@ -30,9 +30,9 @@ struct ResetClock: View {
             ForEach(0..<ResetClockTime.resetCount, id: \.self) { index in
                 let angle = Double(index) * 2 * .pi / Double(ResetClockTime.resetCount)
                 Text("\(index + 1)")
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(ink)
-                    .offset(x: sin(angle) * 30, y: -cos(angle) * 30)
+                    .offset(x: sin(angle) * 27, y: -cos(angle) * 27)
             }
             if let time {
                 hand(length: 23, width: 4.5, turns: time.hourTurns)
