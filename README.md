@@ -9,6 +9,8 @@ A small native macOS 27 app for your current Codex account limits. Built with Sw
 - Menu-bar percentage reflects the primary Codex window's remaining capacity.
 - Connection settings support automatic executable discovery or a custom Codex executable.
 - Failed refreshes preserve the last successful reading with an explicit stale-data notice.
+- Dashboard height fits its contents and caps vertical resizing at that height. Smaller windows scroll, and width remains resizable.
+- A mint usage-gauge and terminal-prompt application icon, with every macOS icon resolution included.
 
 To change the number of small clock ticks between reset markers, edit `minuteTicksPerReset` in `codex-usage-swift/ResetClock.swift` (defaults to 5). Without a reported five-hour reset time, the clock shows its face with a dash in place of the hands.
 
@@ -40,8 +42,11 @@ The [Codex app-server documentation](https://learn.chatgpt.com/docs/app-server) 
 
 ```sh
 ./Tests/run-checks.sh
+./Tests/run-window-checks.sh
 # Also verify the actual locally signed-in account (requires network access):
 ./Tests/run-checks.sh --live
 ```
 
 Checks cover decoding, bucket ordering, percentage bounds, missing windows/reset times, signed-out accounts, missing executables, and the JSONL handshake with fragmented responses and unsolicited notifications. Live mode exercises the same Swift client as the app and omits account details from output.
+
+Window checks exercise native AppKit window constraints, initial content fitting, changing content heights, and preserving a manually reduced viewport. They require a macOS graphical session. To regenerate the icon assets from their vector drawing, run `swift Tools/generate-app-icon.swift`.

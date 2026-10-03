@@ -4,6 +4,7 @@ private let mint = Color(red: 0.34, green: 0.88, blue: 0.73)
 
 struct ContentView: View {
     @Environment(UsageStore.self) private var store
+    @State private var contentHeight: CGFloat = 0
 
     var body: some View {
         ScrollView {
@@ -39,7 +40,14 @@ struct ContentView: View {
                 }
             }
             .padding(32)
+            .fixedSize(horizontal: false, vertical: true)
+            .onGeometryChange(for: CGFloat.self) { geometry in
+                geometry.size.height
+            } action: { height in
+                contentHeight = height
+            }
         }
+        .background(WindowHeightLimit(contentHeight: contentHeight))
         .background {
             ZStack {
                 Color(red: 0.055, green: 0.075, blue: 0.09)
@@ -51,7 +59,7 @@ struct ContentView: View {
             .ignoresSafeArea()
         }
         .preferredColorScheme(.dark)
-        .frame(minWidth: 580, minHeight: 460)
+        .frame(minWidth: 580, minHeight: ContentHeightWindowView.minimumViewportHeight)
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 SettingsLink { Image(systemName: "gearshape") }.help("Connection settings")
@@ -61,6 +69,7 @@ struct ContentView: View {
                     .help("Refresh usage (⌘R)")
             }
         }
+        .windowFullScreenBehavior(.disabled)
         .task { store.start() }
     }
 

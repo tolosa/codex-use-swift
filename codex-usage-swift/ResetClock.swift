@@ -32,7 +32,7 @@ struct ResetClock: View {
                 Text("\(index + 1)")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(ink)
-                    .offset(x: sin(angle) * 27, y: -cos(angle) * 27)
+                    .offset(x: sin(angle) * 28, y: -cos(angle) * 28)
             }
             if let time {
                 hand(length: 23, width: 4.5, turns: time.hourTurns)

@@ -12,7 +12,7 @@ struct CodexUsageApp: App {
                     store.stop()
                 }
         }
-        .defaultSize(width: 660, height: 620)
+        .defaultSize(width: 660, height: 280)
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
         .commands {
