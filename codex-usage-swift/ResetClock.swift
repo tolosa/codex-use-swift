@@ -23,11 +23,8 @@ struct ResetClock: View {
     private func face(time: ResetClockTime?) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color(red: 0.065, green: 0.065, blue: 0.10).gradient)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .strokeBorder(.white.opacity(0.18), lineWidth: 0.75)
-                }
+                .fill(.clear)
+                .glassEffect(.clear, in: .rect(cornerRadius: 24))
             Circle().fill(.white).padding(8)
             ticks
             ForEach(0..<ResetClockTime.resetCount, id: \.self) { index in
@@ -65,7 +62,7 @@ struct ResetClock: View {
     }
 
     private func hand(length: CGFloat, width: CGFloat, turns: Double) -> some View {
-        Capsule()
+        ClockHand()
             .fill(ink)
             .frame(width: width, height: length + 5)
             .offset(y: -(length - 5) / 2)
@@ -77,5 +74,21 @@ struct ResetClock: View {
         guard let time else { return "Reset time unavailable" }
         let first = time.firstReset.formatted(date: .omitted, time: .shortened)
         return "Reset 1: \(first), nearest noon. Each number marks five hours; the long hand completes one turn per reset."
+    }
+}
+
+private struct ClockHand: Shape {
+    func path(in rect: CGRect) -> Path {
+        let tipRadius = rect.width / 2
+        let baseRadius = tipRadius * 0.65
+        let tip = CGPoint(x: rect.midX, y: rect.minY + tipRadius)
+        let base = CGPoint(x: rect.midX, y: rect.maxY - baseRadius)
+
+        return Path { path in
+            path.addArc(center: tip, radius: tipRadius, startAngle: .degrees(180), endAngle: .degrees(360), clockwise: false)
+            path.addLine(to: CGPoint(x: base.x + baseRadius, y: base.y))
+            path.addArc(center: base, radius: baseRadius, startAngle: .degrees(0), endAngle: .degrees(180), clockwise: false)
+            path.closeSubpath()
+        }
     }
 }
