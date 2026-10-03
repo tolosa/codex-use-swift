@@ -3,11 +3,14 @@
 A small native macOS 27 app for your current Codex account limits. Built with SwiftUI, Observation, Liquid Glass cards and controls, and a menu-bar panel.
 
 - Remaining capacity for each reported usage window, with reset countdowns and local reset times.
+- Analog reset clock beside the title, with five numbered five-hour sectors and no seconds hand. Reset 1 is the projected reset nearest today's local noon; the long hand circles once per five-hour window. Five sectors form a 25-hour dial, with numbering anchored again each day. The schedule follows the reported five-hour reset timestamp.
 - Account plan, credit balance when provided, and separate limit buckets when returned by Codex.
 - Automatic refresh every 60 seconds, plus manual refresh with **⌘R**.
 - Menu-bar percentage reflects the primary Codex window's remaining capacity.
 - Connection settings support automatic executable discovery or a custom Codex executable.
 - Failed refreshes preserve the last successful reading with an explicit stale-data notice.
+
+To change the number of small clock ticks between reset markers, edit `minuteTicksPerReset` in `codex-usage-swift/ResetClock.swift` (defaults to 5). Without a reported five-hour reset time, the clock shows its face with a dash in place of the hands.
 
 ## Run
 

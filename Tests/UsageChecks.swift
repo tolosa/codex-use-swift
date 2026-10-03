@@ -22,6 +22,26 @@ struct UsageChecks {
         } catch UsageError.missingCLI { }
         print("PASS: usage decoding, bucket ordering, percentage bounds, missing windows, signed-out account, missing executable")
 
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: -3 * 60 * 60)!
+        let noon = calendar.date(from: DateComponents(year: 2026, month: 10, day: 3, hour: 12))!
+        let reset = noon.addingTimeInterval(60 * 60)
+        let atReset = ResetClockTime(resetDate: reset, now: reset, calendar: calendar)
+        precondition(atReset.firstReset == reset)
+        precondition(atReset.hourTurns == 0 && atReset.minuteTurns == 0)
+        let halfway = ResetClockTime(resetDate: reset, now: reset.addingTimeInterval(2.5 * 3600), calendar: calendar)
+        precondition(abs(halfway.hourTurns - 0.1) < 0.000001 && halfway.minuteTurns == 0.5)
+        let next = ResetClockTime(resetDate: reset.addingTimeInterval(5 * 3600), now: reset.addingTimeInterval(5 * 3600), calendar: calendar)
+        precondition(next.firstReset == reset && next.hourTurns == 0.2 && next.minuteTurns == 0)
+        let before = ResetClockTime(resetDate: reset, now: reset.addingTimeInterval(-2.5 * 3600), calendar: calendar)
+        precondition(before.hourTurns == 0.9 && before.minuteTurns == 0.5)
+        let tomorrow = ResetClockTime(resetDate: reset, now: reset.addingTimeInterval(25 * 3600), calendar: calendar)
+        precondition(tomorrow.firstReset == reset.addingTimeInterval(25 * 3600))
+        precondition(tomorrow.hourTurns == 0 && tomorrow.minuteTurns == 0)
+        let lateReset = ResetClockTime(resetDate: noon.addingTimeInterval(4 * 3600), now: noon, calendar: calendar)
+        precondition(lateReset.firstReset == noon.addingTimeInterval(-3600))
+        print("PASS: reset clock noon anchor, five-hour rollover, fractional hands, pre-anchor wrapping, and next-day anchor")
+
         if CommandLine.arguments.contains("--live") {
             let snapshot = try await CodexClient().fetch(customPath: "")
             precondition(!snapshot.limits.buckets.isEmpty)

@@ -65,7 +65,8 @@ struct ContentView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .top) {
+        HStack(alignment: .center, spacing: 18) {
+            ResetClock(resetDate: clockResetDate)
             VStack(alignment: .leading, spacing: 9) {
                 Text("CODEX / USAGE").font(.system(size: 11, weight: .semibold, design: .monospaced))
                     .tracking(2.5).foregroundStyle(mint)
@@ -80,6 +81,13 @@ struct ContentView: View {
                     .glassEffect(.regular.tint(mint.opacity(0.12)), in: .capsule)
             }
         }
+    }
+
+    private var clockResetDate: Date? {
+        store.snapshot?.limits.buckets
+            .flatMap { [$0.primary, $0.secondary].compactMap { $0 } }
+            .first { $0.windowDurationMins == 300 && $0.resetDate != nil }?
+            .resetDate
     }
 
     private func bucketView(_ bucket: RateLimitBucket) -> some View {
