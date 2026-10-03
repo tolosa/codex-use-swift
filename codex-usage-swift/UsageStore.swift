@@ -6,13 +6,18 @@ final class UsageStore {
     var isRefreshing = false
     var errorMessage: String?
     var customPath: String {
-        didSet { UserDefaults.standard.set(customPath, forKey: "codexExecutablePath") }
+        didSet {
+            guard !isPreview else { return }
+            UserDefaults.standard.set(customPath, forKey: "codexExecutablePath")
+        }
     }
+    private let isPreview: Bool
     private var refreshTask: Task<Void, Never>?
     private var client: CodexClient?
 
-    init() {
-        customPath = UserDefaults.standard.string(forKey: "codexExecutablePath") ?? ""
+    init(isPreview: Bool = false) {
+        self.isPreview = isPreview
+        customPath = isPreview ? "" : UserDefaults.standard.string(forKey: "codexExecutablePath") ?? ""
     }
 
     var menuLabel: String {
@@ -21,7 +26,7 @@ final class UsageStore {
     }
 
     func start() {
-        guard refreshTask == nil else { return }
+        guard !isPreview, refreshTask == nil else { return }
         refreshTask = Task { [weak self] in
             while !Task.isCancelled {
                 await self?.refresh()
@@ -31,7 +36,7 @@ final class UsageStore {
     }
 
     func refresh() async {
-        guard !isRefreshing else { return }
+        guard !isPreview, !isRefreshing else { return }
         isRefreshing = true
         defer { isRefreshing = false }
         let client = CodexClient()

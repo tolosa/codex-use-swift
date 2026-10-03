@@ -296,3 +296,53 @@ struct ConnectionSettings: View {
         .formStyle(.grouped).padding().frame(width: 500, height: 330)
     }
 }
+
+#if DEBUG
+@MainActor
+private func previewStore(connected: Bool = true) -> UsageStore {
+    let store = UsageStore(isPreview: true)
+    guard connected else { return store }
+    let now = Date.now
+    let bucket = RateLimitBucket(
+        limitId: "codex", limitName: "Codex",
+        primary: UsageWindow(usedPercent: 28, windowDurationMins: 300,
+                             resetsAt: now.addingTimeInterval(2 * 60 * 60).timeIntervalSince1970),
+        secondary: UsageWindow(usedPercent: 64, windowDurationMins: 10_080,
+                               resetsAt: now.addingTimeInterval(3 * 24 * 60 * 60).timeIntervalSince1970),
+        planType: "plus", credits: nil
+    )
+    store.snapshot = UsageSnapshot(
+        account: AccountResponse.Account(type: "chatgpt", email: "preview@example.com", planType: "plus"),
+        limits: RateLimitsResponse(rateLimits: bucket, rateLimitsByLimitId: nil),
+        fetchedAt: now.addingTimeInterval(-60)
+    )
+    return store
+}
+
+#Preview("Dashboard") {
+    @Previewable @State var store = previewStore()
+    ContentView()
+        .environment(store)
+        .frame(width: 660, height: 420)
+}
+
+#Preview("Connection needed") {
+    @Previewable @State var store = previewStore(connected: false)
+    ContentView()
+        .environment(store)
+        .frame(width: 660, height: 420)
+}
+
+#Preview("Menu bar") {
+    @Previewable @State var store = previewStore()
+    MenuUsageView()
+        .environment(store)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Settings") {
+    @Previewable @State var store = previewStore()
+    ConnectionSettings()
+        .environment(store)
+}
+#endif

@@ -20,6 +20,8 @@ Open `codex-usage-swift.xcodeproj` in **Xcode 27**, select the `codex-usage-swif
 
 Automatic discovery checks Homebrew, `~/.local/bin`, `~/.cargo/bin`, the Codex app bundle, and inherited PATH entries. Use **Settings → Executable path** for another installation, including a CLI installed through a version manager. The app inherits `CODEX_HOME` when supplied by its launch environment; otherwise Codex uses its normal default home.
 
+For layout previews, open `ContentView.swift` in Xcode, choose **Editor → Canvas**, and click **Resume** if needed. The preview tabs include the dashboard, connection-needed state, menu-bar panel, and settings. They use sample data without launching Codex or saving changes to the executable path. Switch the canvas to **Selectable** mode to inspect views, or **Live** mode to interact with controls.
+
 Build from Terminal:
 
 ```sh
