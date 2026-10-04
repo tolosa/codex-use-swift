@@ -77,7 +77,7 @@ struct ContentView: View {
         HStack(alignment: .center, spacing: 18) {
             ResetClock(resetDate: clockResetDate)
             VStack(alignment: .leading, spacing: 9) {
-                Text("CODEX / USAGE").font(.system(size: 11, weight: .semibold, design: .monospaced))
+                Text("CODEX USAGE").font(.system(size: 11, weight: .semibold, design: .monospaced))
                     .tracking(2.5).foregroundStyle(mint)
                 Text("Room to build.").font(.system(size: 34, weight: .semibold, design: .rounded))
                 Text("Your limits, at a glance.").font(.system(size: 14)).foregroundStyle(.secondary)
@@ -93,10 +93,20 @@ struct ContentView: View {
     }
 
     private var clockResetDate: Date? {
-        store.snapshot?.limits.buckets
-            .flatMap { [$0.primary, $0.secondary].compactMap { $0 } }
-            .first { $0.windowDurationMins == 300 && $0.resetDate != nil }?
-            .resetDate
+        guard let snapshot = store.snapshot else { return nil }
+        for bucket in snapshot.limits.buckets {
+            if let primary = bucket.primary,
+               primary.windowDurationMins == 300,
+               let resetDate = primary.resetDate {
+                return resetDate
+            }
+            if let secondary = bucket.secondary,
+               secondary.windowDurationMins == 300,
+               let resetDate = secondary.resetDate {
+                return resetDate
+            }
+        }
+        return nil
     }
 
     private func bucketView(_ bucket: RateLimitBucket) -> some View {
@@ -158,7 +168,7 @@ private struct UsageCard: View {
     private var color: Color { window.remaining <= 10 ? .orange : mint }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 10) {
             Label(window.title, systemImage: symbol)
                 .font(.system(size: 13, weight: .medium)).foregroundStyle(.secondary)
             HStack(alignment: .firstTextBaseline, spacing: 3) {
@@ -176,7 +186,7 @@ private struct UsageCard: View {
                                 .frame(width: geometry.size.width * window.remaining / 100)
                         }
                 }
-                .frame(height: 6)
+                .frame(height: 8)
                 Text("\(Int(window.used.rounded()))% used").font(.caption).foregroundStyle(.secondary)
             }
             TimelineView(.periodic(from: .now, by: 30)) { context in
