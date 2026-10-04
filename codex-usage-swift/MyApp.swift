@@ -2,14 +2,15 @@ import SwiftUI
 
 @main
 struct CodexUsageApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var store = UsageStore()
 
     var body: some Scene {
         Window("Codex Usage", id: "usage") {
             ContentView()
                 .environment(store)
-                .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
-                    store.stop()
+                .onAppear {
+                    appDelegate.store = store
                 }
         }
         .defaultSize(width: 660, height: 280)
@@ -33,5 +34,18 @@ struct CodexUsageApp: App {
         Settings {
             ConnectionSettings().environment(store)
         }
+    }
+}
+
+@MainActor
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    var store: UsageStore?
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        true
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        store?.stop()
     }
 }

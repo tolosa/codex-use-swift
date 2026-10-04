@@ -28,14 +28,14 @@ struct ResetClock: View {
             Circle().fill(.white).padding(8)
             ticks
             ForEach(0..<ResetClockTime.resetCount, id: \.self) { index in
-                let angle = Double(index) * 2 * .pi / Double(ResetClockTime.resetCount)
+                let angle = Double(index + 1) * 2 * .pi / Double(ResetClockTime.resetCount)
                 Text("\(index + 1)")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(ink)
                     .offset(x: sin(angle) * 28, y: -cos(angle) * 28)
             }
             if let time {
-                hand(length: 23, width: 4.5, turns: time.hourTurns)
+                hand(length: 23, width: 4.5, turns: time.hourTurns + 1 / Double(ResetClockTime.resetCount))
                 hand(length: 35, width: 3, turns: time.minuteTurns)
                 Circle().fill(ink).frame(width: 7, height: 7)
                 Circle().fill(.white).frame(width: 2, height: 2)
@@ -79,16 +79,21 @@ struct ResetClock: View {
 
 private struct ClockHand: Shape {
     func path(in rect: CGRect) -> Path {
-        let tipRadius = rect.width / 2
-        let baseRadius = tipRadius * 0.65
-        let tip = CGPoint(x: rect.midX, y: rect.minY + tipRadius)
-        let base = CGPoint(x: rect.midX, y: rect.maxY - baseRadius)
+        let radius = rect.width / 2
+        let stemWidth = rect.width * 0.45
+        let stemLength: CGFloat = 10
+        let body = CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height - stemLength)
+        // Overlap the rounded body so only the short segment around the pivot is thin.
+        let stem = CGRect(
+            x: rect.midX - stemWidth / 2,
+            y: body.maxY - radius,
+            width: stemWidth,
+            height: stemLength + radius
+        )
 
         return Path { path in
-            path.addArc(center: tip, radius: tipRadius, startAngle: .degrees(180), endAngle: .degrees(360), clockwise: false)
-            path.addLine(to: CGPoint(x: base.x + baseRadius, y: base.y))
-            path.addArc(center: base, radius: baseRadius, startAngle: .degrees(0), endAngle: .degrees(180), clockwise: false)
-            path.closeSubpath()
+            path.addRoundedRect(in: body, cornerSize: CGSize(width: radius, height: radius))
+            path.addRoundedRect(in: stem, cornerSize: CGSize(width: stemWidth / 2, height: stemWidth / 2))
         }
     }
 }
